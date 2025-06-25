@@ -1,0 +1,230 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>断情の博客 - 不骄不躁，戒骄戒躁</title><meta name="author" content="kin"><meta name="copyright" content="kin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="RUN ON">
+<meta property="og:type" content="website">
+<meta property="og:title" content="断情の博客">
+<meta property="og:url" content="https://mistfjord.github.io/index.html">
+<meta property="og:site_name" content="断情の博客">
+<meta property="og:description" content="RUN ON">
+<meta property="og:locale">
+<meta property="og:image" content="https://mistfjord.github.io/images/head.png">
+<meta property="article:author" content="kin">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mistfjord.github.io/images/head.png"><link rel="shortcut icon" href="/images/img_2.png"><link rel="canonical" href="https://mistfjord.github.io/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"No results found for: ${query}","hits_stats":"${hits} articles found"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'medium_zoom',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '断情の博客',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'home'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/images/default.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/head.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header" style="background-image: url(/images/default.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">断情の博客</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="site-info"><h1 id="site-title">断情の博客</h1><div id="site-subtitle"><span id="subtitle"></span></div></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts nc" id="recent-posts"><div class="recent-post-items"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/06/25/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E8%AE%B0-hexo-butterfly%E4%B8%BB%E9%A2%98%E8%87%AA%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE/" title="hexo-butterfly主题自定义配置">hexo-butterfly主题自定义配置</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-06-25T09:50:15.674Z" title="Created 2025-06-25 17:50:15">2025-06-25</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-06-25T09:50:15.674Z" title="Updated 2025-06-25 17:50:15">2025-06-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E8%AE%B0/">个人随记</a></span></div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/06/25/kubernetes-client-go-k8s%20informers%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/" title="k8s informers机制详解">k8s informers机制详解</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-06-25T09:43:08.000Z" title="Created 2025-06-25 17:43:08">2025-06-25</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-06-25T09:50:15.668Z" title="Updated 2025-06-25 17:50:15">2025-06-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/kubernetes/">kubernetes</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/client-go/">client-go</a></span></div><div class="content">Kubernetes Informers 机制全流程源码解析（基于 client-go v0.29.0）我将结合最新源码，深入解析 Informers 机制的核心流程，使用清晰的架构图和关键源码片段说明： 一、整体架构拓扑 二、核心组件源码剖析1. Reflector 启动（pkg&#x2F;client-go&#x2F;tools&#x2F;cache&#x2F;reflector.go）123456789101112131415161718192021222324252627282930313233343536// ListAndWatch 核心逻辑 (260行)func (r *Reflector) ListAndWatch(stopCh &lt;-chan struct&#123;&#125;) error &#123;    // 初始List操作    list, err := r.listerWatcher.List(options)    items, err := meta.ExtractList(list)      // 同步到DeltaFIFO (关键)...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/06/25/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" title="docker架构设计">docker架构设计</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-06-25T09:50:15.663Z" title="Updated 2025-06-25 17:50:15">2025-06-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/docker/">docker</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><span class="article-meta-link">•</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C/">基础概念与操作</a><span class="article-meta-link">•</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86/">底层实现与原理</a></span></div><div class="content">以下是基于当前技术实现的 Docker 架构原理图（适配 Linux 系统，2024年最新组件关系），配合核心组件详解： Docker架构设计剖析Docker 架构图（文字描述 + 伪代码结构）12345678910111213141516171819202122232425graph TD    subgraph User Space        A[Docker CLI&lt;br&gt;“docker” 命令] --&gt;|REST API 调用| B[Dockerd&lt;br&gt;守护进程]        B --&gt; C[Container Runtime Interface]        B --&gt; D[Network Drivers&lt;br&gt;• libnetwork&lt;br&gt;• Bridge/Overlay]        B --&gt; E[Storage Drivers&lt;br&gt;• Overlay2&lt;br&gt;• Volume]    end      subgraph Core Runtime   ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/06/25/kubernetes-client-go-client-go%20Indexer%E6%9C%BA%E5%88%B6%E4%B8%8E%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="client-go Indexer机制与源码解析">client-go Indexer机制与源码解析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-06-25T09:50:15.664Z" title="Updated 2025-06-25 17:50:15">2025-06-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/kubernetes/">kubernetes</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/client-go/">client-go</a></span></div><div class="content"> client-go informers 机制中的Indexer索引解析  informers机制整理流程 以下结合 Kubernetes client-go 源码中的数据结构，详细说明 Indexer 如何存储数据。我们将通过一个具体示例展示内存中的数据结构和索引关系，源码基于 k8s.io/client-go@v1.28.0。  Indexer解析Indexer 是 Informers 机制中缓存层的核心索引引擎，它通过多级索引实现高效的对象检索。 Indexer 在数据流中的关键作用：  持久化存储：作为本地缓存存储从 API Server 获取的资源对象 索引加速：提供基于自定义索引的快速检索能力 事件分发基础：为事件处理器提供查询上下文  一、核心数据结构定义路径：client-go/tools/cache/thread_safe_store.go 1. 基础存储结构Indexer接口1234567891011121314151617181920212223// Indexer 扩展了 Store，支持多重索引（index）功能，//...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/06/25/kubernetes-client-go-client-go%20Reflector%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="client-go Reflector源码解析">client-go Reflector源码解析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-06-25T09:50:15.667Z" title="Updated 2025-06-25 17:50:15">2025-06-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/kubernetes/">kubernetes</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/client-go/">client-go</a></span></div><div class="content"> client-go informers 机制中的Reflector  informers机制整理流程 Reflector剖析以下是结合 refelctor.watch() 源码对 Reflector 在 Informer 机制中的角色及参与流程的深度解析：  一、Reflector 的核心角色1. 数据同步中枢12345678910// pkg/client-go/tools/cache/reflector.gotype Reflector struct &#123;    name               string          // 标识符（如&quot;pods reflector&quot;）    listerWatcher      ListerWatcher   // List/Watch接口实现    store              Store           // DeltaFIFO的引用    resyncPeriod       time.Duration   // 全量同步周期    clock             ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/06/23/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%EF%BC%9AUnionFS%EF%BC%88%E8%81%94%E5%90%88%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%EF%BC%89/" title="docker容器技术原理：UnionFS（联合文件系统）">docker容器技术原理：UnionFS（联合文件系统）</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-06-23T07:47:03.000Z" title="Created 2025-06-23 15:47:03">2025-06-23</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-06-25T09:50:15.663Z" title="Updated 2025-06-25 17:50:15">2025-06-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/docker/">docker</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><span class="article-meta-link">•</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C/">基础概念与操作</a><span class="article-meta-link">•</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86/">底层实现与原理</a></span></div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/06/16/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%EF%BC%9ACgroup/" title="docker容器技术原理：Cgroup">docker容器技术原理：Cgroup</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-06-16T14:58:54.000Z" title="Created 2025-06-16 22:58:54">2025-06-16</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-06-25T09:50:15.663Z" title="Updated 2025-06-25 17:50:15">2025-06-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/docker/">docker</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><span class="article-meta-link">•</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C/">基础概念与操作</a><span class="article-meta-link">•</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86/">底层实现与原理</a></span></div><div class="content">1、cgroups简介cgroups（全称：control groups）是 Linux 内核的一个功能，它可以实现限制进程或者进程组的资源（如 CPU、内存、磁盘 IO 等）。  在 2006 年，Google 的工程师（ Rohit Seth 和 Paul Menage 为主要发起人） 发起了这个项目，起初项目名称并不是cgroups，而被称为进程容器（process containers）。在 2007 年cgroups代码计划合入Linux 内核，但是当时在 Linux 内核中，容器（container）这个词被广泛使用，并且拥有不同的含义。为了避免命名混乱和歧义，进程容器被重名为cgroups，并在 2008 年成功合入 Linux 2.6.24 版本中。cgroups目前已经成为 systemd、Docker、Linux Containers（LXC） 等技术的基础。  cgroups 功能及核心概念cgroups 主要提供了如下功能。  资源限制：...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%EF%BC%9ANameSpace/" title="docker容器技术原理：NameSpace">docker容器技术原理：NameSpace</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-06-15T15:33:16.000Z" title="Created 2025-06-15 23:33:16">2025-06-15</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-06-25T09:50:15.663Z" title="Updated 2025-06-25 17:50:15">2025-06-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/docker/">docker</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><span class="article-meta-link">•</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C/">基础概念与操作</a><span class="article-meta-link">•</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86/">底层实现与原理</a></span></div><div class="content">Docker 是使用 Linux 的 Namespace 技术实现各种资源隔离的。 什么是 Namespace？下面是 Namespace 的维基百科定义：  Namespace 是 Linux 内核的一项功能，该功能对内核资源进行分区，以使一组进程看到一组资源，而另一组进程看到另一组资源。Namespace 的工作方式通过为一组资源和进程设置相同的 Namespace 而起作用，但是这些 Namespace 引用了不同的资源。资源可能存在于多个 Namespace 中。这些资源可以是进程 ID、主机名、用户 ID、文件名、与网络访问相关的名称和进程间通信。  简单来说，Namespace 是 Linux 内核的一个特性，该特性可以实现在同一主机系统中，对进程 ID、主机名、用户 ID、文件名、网络和进程间通信等资源的隔离。Docker 利用 Linux 内核的 Namespace 特性，实现了每个容器的资源相互隔离，从而保证容器内部只能访问到自己 Namespace 的资源。    Namespace 类型 隔离资源 内核版本 Docker...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-docker%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%B8%8E%E4%BD%BF%E7%94%A8/" title="docker基本概念与使用">docker基本概念与使用</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-06-15T09:30:22.000Z" title="Created 2025-06-15 17:30:22">2025-06-15</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-06-25T09:50:15.663Z" title="Updated 2025-06-25 17:50:15">2025-06-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/docker/">docker</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><span class="article-meta-link">•</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C/">基础概念与操作</a></span></div><div class="content">一、基础部分（基本使用）1. Docker核心概念 镜像（Image）、容器（Container）、仓库（Repository）的概念 Docker与虚拟机的区别（轻量级、资源共享、启动速度等）  3. 基本命令操作 镜像管理： docker pull、docker images、docker rmi、docker build（Dockerfile） docker tag、docker push、docker save、docker load   容器管理： docker run（各种参数：-d, -p, -v, --name, --network, --restart等） docker ps、docker stop、docker start、docker restart、docker rm docker logs、docker exec、docker inspect   其他常用命令： docker info、docker version、docker system...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-docker-guide/" title="docker-guide">docker-guide</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-06-15T09:29:09.000Z" title="Created 2025-06-15 17:29:09">2025-06-15</time><span class="article-meta-separator">|</span><i class="fas fa-history"></i><span class="article-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-06-25T09:50:15.663Z" title="Updated 2025-06-25 17:50:15">2025-06-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/docker/">docker</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="content">一、基础部分（基本使用）1. Docker核心概念 镜像（Image）、容器（Container）、仓库（Repository）的概念 Docker与虚拟机的区别（轻量级、资源共享、启动速度等）  2. Docker安装与配置 在不同操作系统（Linux, Windows, macOS）上的安装 配置镜像加速器（阿里云等）  3. 基本命令操作 镜像管理： docker pull、docker images、docker rmi、docker build（Dockerfile） docker tag、docker push、docker save、docker load   容器管理： docker run（各种参数：-d, -p, -v, --name, --network, --restart等） docker ps、docker stop、docker start、docker restart、docker rm docker logs、docker exec、docker inspect   其他常用命令： docker info、docker...</div></div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span><a class="page-number" href="/page/2/#content-inner">2</a><a class="extend next" rel="next" href="/page/2/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/head.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">kin</div><div class="author-info-description">RUN ON</div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/mistFjord/"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E8%AE%B0-hexo-butterfly%E4%B8%BB%E9%A2%98%E8%87%AA%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE/" title="hexo-butterfly主题自定义配置">hexo-butterfly主题自定义配置</a><time datetime="2025-06-25T09:50:15.674Z" title="Created 2025-06-25 17:50:15">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/kubernetes-client-go-k8s%20informers%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/" title="k8s informers机制详解">k8s informers机制详解</a><time datetime="2025-06-25T09:43:08.000Z" title="Created 2025-06-25 17:43:08">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" title="docker架构设计">docker架构设计</a><time datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/kubernetes-client-go-client-go%20Indexer%E6%9C%BA%E5%88%B6%E4%B8%8E%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="client-go Indexer机制与源码解析">client-go Indexer机制与源码解析</a><time datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/kubernetes-client-go-client-go%20Reflector%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="client-go Reflector源码解析">client-go Reflector源码解析</a><time datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>Categories</span>
+            
+          </div>
+          <ul class="card-category-list expandBtn" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/"><span class="card-category-list-name">.</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/docker/"><span class="card-category-list-name">docker</span><span class="card-category-list-count">7</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/kubernetes/"><span class="card-category-list-name">kubernetes</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E8%AE%B0/"><span class="card-category-list-name">个人随记</span><span class="card-category-list-count">3</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>Tags</span></div><div class="card-tag-cloud"><a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" style="font-size: 1.45em; color: rgb(50, 50, 106);">学习笔记</a><a href="/tags/%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C/" style="font-size: 1.35em; color: rgb(60, 199, 186);">基础概念与操作</a><a href="/tags/%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86/" style="font-size: 1.25em; color: rgb(113, 50, 50);">底层实现与原理</a><a href="/tags/%E5%AE%89%E8%A3%85/" style="font-size: 1.15em; color: rgb(130, 67, 50);">安装</a><a href="/tags/%E6%95%99%E7%A8%8B/" style="font-size: 1.15em; color: rgb(134, 89, 63);">教程</a><a href="/tags/client-go/" style="font-size: 1.25em; color: rgb(180, 56, 66);">client-go</a><a href="/tags/%E7%AE%80%E5%8E%86/" style="font-size: 1.15em; color: rgb(84, 56, 50);">简历</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>Archives</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/06/">
+            <span class="card-archive-list-date">
+              June 2025
+            </span>
+            <span class="card-archive-list-count">15</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>Website Info</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">Article Count :</div><div class="item-count">15</div></div><div class="webinfo-item"><div class="item-name">Total Word Count :</div><div class="item-count">19.2k</div></div><div class="webinfo-item"><div class="item-name">Last Update :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-06-25T09:50:37.915Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/images/default.png);"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By kin</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>window.typedJSFn = {
+  init: str => {
+    window.typed = new Typed('#subtitle', Object.assign({
+      strings: str,
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50,
+    }, null))
+  },
+  run: subtitleType => {
+    if (true) {
+      if (typeof Typed === 'function') {
+        subtitleType()
+      } else {
+        btf.getScript('https://cdn.jsdelivr.net/npm/typed.js/dist/typed.umd.min.js').then(subtitleType)
+      }
+    } else {
+      subtitleType()
+    }
+  },
+  processSubtitle: (content, extraContents = []) => {
+    if (true) {
+      const sub = ["不积跬步无以至千里"].slice()
+
+      if (extraContents.length > 0) {
+        sub.unshift(...extraContents)
+      }
+
+      if (typeof content === 'string') {
+        sub.unshift(content)
+      } else if (Array.isArray(content)) {
+        sub.unshift(...content)
+      }
+
+      sub.length > 0 && typedJSFn.init(sub)
+    } else {
+      document.getElementById('subtitle').textContent = typeof content === 'string' ? content :
+        (Array.isArray(content) && content.length > 0 ? content[0] : '')
+    }
+  }
+}
+btf.addGlobalFn('pjaxSendOnce', () => { typed.destroy() }, 'typedDestroy')
+</script><script>function subtitleType () {
+  btf.getScript('https://sdk.jinrishici.com/v2/browser/jinrishici.js')
+    .then(() => {
+      jinrishici.load(result => {
+        if (result && result.data && result.data.content) {
+          typedJSFn.processSubtitle(result.data.content)
+        } else {
+          throw new Error('Failed to parse the return value of Jinrishici API')
+        }
+      })
+    })
+    .catch(err => {
+      console.error('Failed to get the Jinrishici API:', err)
+      typedJSFn.processSubtitle(1)
+    })
+}
+typedJSFn.run(subtitleType)
+</script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>docker架构设计 | 断情の博客</title><meta name="author" content="kin"><meta name="copyright" content="kin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="以下是基于当前技术实现的 Docker 架构原理图（适配 Linux 系统，2024年最新组件关系），配合核心组件详解： Docker架构设计剖析Docker 架构图（文字描述 + 伪代码结构）12345678910111213141516171819202122232425graph TD    subgraph User Space        A[Docker CLI&lt;br&gt;“">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker架构设计">
+<meta property="og:url" content="https://mistfjord.github.io/2025/06/25/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="断情の博客">
+<meta property="og:description" content="以下是基于当前技术实现的 Docker 架构原理图（适配 Linux 系统，2024年最新组件关系），配合核心组件详解： Docker架构设计剖析Docker 架构图（文字描述 + 伪代码结构）12345678910111213141516171819202122232425graph TD    subgraph User Space        A[Docker CLI&lt;br&gt;“">
+<meta property="og:locale">
+<meta property="og:image" content="https://mistfjord.github.io/images/head.png">
+<meta property="article:published_time" content="2025-06-25T09:43:07.000Z">
+<meta property="article:modified_time" content="2025-06-25T09:50:15.663Z">
+<meta property="article:author" content="kin">
+<meta property="article:tag" content="学习笔记">
+<meta property="article:tag" content="基础概念与操作">
+<meta property="article:tag" content="底层实现与原理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mistfjord.github.io/images/head.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "docker架构设计",
+  "url": "https://mistfjord.github.io/2025/06/25/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/",
+  "image": "https://mistfjord.github.io/images/head.png",
+  "datePublished": "2025-06-25T09:43:07.000Z",
+  "dateModified": "2025-06-25T09:50:15.663Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "kin",
+      "url": "https://mistfjord.github.io/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/images/img_2.png"><link rel="canonical" href="https://mistfjord.github.io/2025/06/25/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"No results found for: ${query}","hits_stats":"${hits} articles found"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'medium_zoom',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'docker架构设计',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/images/default.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/head.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/images/default.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">断情の博客</span></a><a class="nav-page-title" href="/"><span class="site-name">docker架构设计</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">docker架构设计</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-06-25T09:50:15.663Z" title="Updated 2025-06-25 17:50:15">2025-06-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/docker/">docker</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word Count:</span><span class="word-count">2.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading Time:</span><span>11mins</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>以下是基于当前技术实现的 Docker 架构原理图（适配 Linux 系统，2024年最新组件关系），配合核心组件详解：</p>
+<h1 id="Docker架构设计剖析"><a href="#Docker架构设计剖析" class="headerlink" title="Docker架构设计剖析"></a>Docker架构设计剖析</h1><h3 id="Docker-架构图（文字描述-伪代码结构）"><a href="#Docker-架构图（文字描述-伪代码结构）" class="headerlink" title="Docker 架构图（文字描述 + 伪代码结构）"></a>Docker 架构图（文字描述 + 伪代码结构）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">    subgraph User Space</span><br><span class="line">        A[Docker CLI&lt;br&gt;“docker” 命令] --&gt;|REST API 调用| B[Dockerd&lt;br&gt;守护进程]</span><br><span class="line">        B --&gt; C[Container Runtime Interface]</span><br><span class="line">        B --&gt; D[Network Drivers&lt;br&gt;• libnetwork&lt;br&gt;• Bridge/Overlay]</span><br><span class="line">        B --&gt; E[Storage Drivers&lt;br&gt;• Overlay2&lt;br&gt;• Volume]</span><br><span class="line">    end</span><br><span class="line">  </span><br><span class="line">    subgraph Core Runtime</span><br><span class="line">        C --&gt; F[containerd&lt;br&gt;• 任务分发&lt;br&gt;• 镜像管理]</span><br><span class="line">        F --&gt; G[containerd-shim&lt;br&gt;• 进程生命周期桥接]</span><br><span class="line">        G --&gt; H[runc&lt;br&gt;OCI 实现&lt;br&gt;（创建容器）]</span><br><span class="line">    end</span><br><span class="line">  </span><br><span class="line">    subgraph Kernel Space</span><br><span class="line">        H --&gt; I[Linux Kernel&lt;br&gt;核心功能接口]</span><br><span class="line">        I --&gt; J[Namespaces&lt;br&gt;• PID&lt;br&gt;• NET&lt;br&gt;• MNT]</span><br><span class="line">        I --&gt; K[Cgroups&lt;br&gt;• cpu&lt;br&gt;• memory&lt;br&gt;• blkio]</span><br><span class="line">        I --&gt; L[Union FS&lt;br&gt;• OverlayFS&lt;br&gt;存储驱动]</span><br><span class="line">        I --&gt; M[Netfilter/iptables&lt;br&gt;网络规则]</span><br><span class="line">    end</span><br><span class="line">  </span><br><span class="line">    B --&gt; N[Image Registry&lt;br&gt;• Docker Hub&lt;br&gt;• Harbor]</span><br><span class="line">    E --&gt; L</span><br><span class="line">    D --&gt; M</span><br></pre></td></tr></table></figure>
+
+<h3 id="核心组件功能说明"><a href="#核心组件功能说明" class="headerlink" title="核心组件功能说明"></a>核心组件功能说明</h3><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2025/06/25/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/Ciqc1F9y4vGAVzmAAADk1nlHpUA424.png" alt="7.png"></p>
+<h4 id="1-Docker-Client-CLI"><a href="#1-Docker-Client-CLI" class="headerlink" title="1. Docker Client&#x2F;CLI"></a>1. Docker Client&#x2F;CLI</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 用户命令行操作（例如创建容器）</span></span><br><span class="line">docker run -d nginx:alpine</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>作用</strong>：用户与 Docker 交互的入口</li>
+<li><strong>通信方式</strong>：通过 <code>/var/run/docker.sock</code> UNIX socket 或 TCP 端口连接 dockerd</li>
+</ul>
+<h4 id="2-Docker-Daemon-dockerd"><a href="#2-Docker-Daemon-dockerd" class="headerlink" title="2. Docker Daemon (dockerd)"></a>2. Docker Daemon (dockerd)</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">flowchart TB</span><br><span class="line">    A[用户请求入口] --&gt;|REST API| B(对象管理)</span><br><span class="line">    B --&gt; C[镜像管理]</span><br><span class="line">    B --&gt; D[网络管理]</span><br><span class="line">    B --&gt; E[卷管理]</span><br><span class="line">    B --&gt; F[任务调度]</span><br><span class="line">    F --&gt;|gRPC| G[containerd]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>核心职责：<ul>
+<li>提供 REST API 服务端 (监听 <code>/var/run/docker.sock</code>)</li>
+<li>管理 Docker 对象生命周期：镜像&#x2F;容器&#x2F;网络&#x2F;卷</li>
+<li>插件体系管理：网络驱动(CNM)、存储驱动、日志驱动</li>
+<li>用户命令行接口(CLI)的后端执行器</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-containerd-核心容器运行时"><a href="#3-containerd-核心容器运行时" class="headerlink" title="3. containerd (核心容器运行时)"></a>3. containerd (核心容器运行时)</h4><p><strong>角色</strong>：容器生命周期总控中心</p>
+<table>
+<thead>
+<tr>
+<th>功能模块</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>任务分发</strong></td>
+<td>接收dockerd指令，调度容器操作</td>
+</tr>
+<tr>
+<td><strong>镜像管理</strong></td>
+<td>从仓库拉取镜像，管理本地存储（&#x2F;var&#x2F;lib&#x2F;containerd）</td>
+</tr>
+<tr>
+<td><strong>存储插件</strong></td>
+<td>通过Snapshotter管理文件系统快照（支持overlayfs、zfs等）</td>
+</tr>
+<tr>
+<td><strong>事件监听</strong></td>
+<td>暴露容器状态变更事件（gRPC接口）</td>
+</tr>
+<tr>
+<td><strong>指标采集</strong></td>
+<td>收集cgroups资源使用数据</td>
+</tr>
+</tbody></table>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    A[镜像管理] --&gt;|拉取/存储元数据| Images</span><br><span class="line">    B[容器生命周期] --&gt;|启停/暂停/删除| Containers</span><br><span class="line">    C[存储管理] --&gt;|快照/overlay2| Snapshots</span><br><span class="line">    D[网络接口] --&gt;|抽象层| CNI_Plugins</span><br><span class="line">    E[事件分发] --&gt;|状态变更通知| Docker/CRI</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>核心职责</strong>：</p>
+<ul>
+<li>容器生命周期管理：<code>create/start/stop/delete</code></li>
+<li>镜像全周期管理：<code>pull/push/build</code><ul>
+<li>关键组件：<ul>
+<li><strong>Content Store</strong>：存储镜像层 blob（<code>/var/lib/containerd/io.containerd.content.v1.content</code>）</li>
+<li><strong>Snapshotter</strong>：构建容器读写层（支持 overlayfs、zfs 等）</li>
+<li><strong>Diff Service</strong>：计算镜像层差异</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>存储快照管理：(操作 <code>/var/lib/containerd</code>)<ul>
+<li>特性支持：<ul>
+<li><code>volume-driver</code> 插件扩展（nfs、ceph）</li>
+<li>Volume 生命周期管理（create&#x2F;remove）</li>
+<li>SELinux 上下文自动标记</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>网络资源编排<ul>
+<li>实现路径：<ol>
+<li>调用 CNI 插件创建网卡</li>
+<li>通过 PublishPort 暴露端口</li>
+<li>整合网络策略（如 Calico、Flannel）</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>实现 CRI (Container Runtime Interface) 标准</li>
+</ul>
+</li>
+<li><p><strong>关键路径</strong>：<code>/var/lib/containerd</code></p>
+</li>
+<li><p><strong>通信协议</strong>：gRPC（高性能二进制通信）</p>
+</li>
+</ul>
+<h4 id="4-containerd-shim-隔离层"><a href="#4-containerd-shim-隔离层" class="headerlink" title="4. containerd-shim (隔离层)"></a>4. containerd-shim (隔离层)</h4><p><strong>角色</strong>：容器进程守护代理</p>
+<ul>
+<li>核心职责：<ul>
+<li><strong>进程托管</strong>：成为容器进程的实际父进程</li>
+<li><strong>信号中继</strong>：转发 SIGTERM&#x2F;SIGKILL 等信号</li>
+<li><strong>IO 传递</strong>：连接容器 stdio 和日志驱动</li>
+<li><strong>状态维持</strong>：保留退出容器状态直至被清理</li>
+</ul>
+</li>
+</ul>
+<p><strong>存在意义</strong>：解决<strong>父进程管理</strong>和<strong>守护进程解耦</strong>问题</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">    A[进程托管] --&gt;|防止僵尸进程| B[孤儿进程回收]</span><br><span class="line">    C[信号中继] --&gt;|转发SIGTERM信号| D[容器优雅退出]</span><br><span class="line">    E[无守护进程依赖] --&gt;|dockerd重启不影响容器| F[容器持续运行]</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><p>关键机制：</p>
+<ul>
+<li>每启动一个容器生成独立 shim 进程</li>
+<li>转发 IO 流（STDIN&#x2F;STDOUT&#x2F;STDERR 到 containerd 日志驱动）</li>
+</ul>
+</li>
+<li><p>关键特征</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 每个容器对应独立 shim 进程</span></span><br><span class="line">$ pstree -p | grep shim</span><br><span class="line">containerd(1001)───containerd-shim(2031)───nginx(2040)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="5-runC：轻量级容器执行引擎"><a href="#5-runC：轻量级容器执行引擎" class="headerlink" title="5. runC：轻量级容器执行引擎"></a>5. <strong>runC：轻量级容器执行引擎</strong></h4><p><strong>角色</strong>：OCI 标准实现者</p>
+<ul>
+<li>核心职责：<ul>
+<li>实现 OCI 运行时规范 (runtime-spec)</li>
+<li>调用 Linux 内核接口创建容器环境：<ul>
+<li>命名空间隔离 (namespace)</li>
+<li>资源限制 (cgroups v2)</li>
+<li>文件系统挂载 (OverlayFS)</li>
+<li>安全策略 (AppArmor&#x2F;seccomp)</li>
+</ul>
+</li>
+<li>执行容器启动进程 (ENTRYPOINT&#x2F;CMD)</li>
+</ul>
+</li>
+</ul>
+<p><strong>内核交互原理</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant runc as runc (容器运行时)</span><br><span class="line">    participant kernel as Linux Kernel</span><br><span class="line">    participant cgroup as Cgroups</span><br><span class="line">    participant seccomp as Seccomp</span><br><span class="line"></span><br><span class="line">    runc-&gt;&gt;kernel: 1. clone(CLONE_NEW*Flags) 创建新命名空间</span><br><span class="line">    kernel--&gt;&gt;runc: 返回隔离的进程空间</span><br><span class="line">    </span><br><span class="line">    runc-&gt;&gt;cgroup: 2. cgroup_create() 创建控制组</span><br><span class="line">    runc-&gt;&gt;cgroup: 写入资源限制 (cpu/memory/pids...)</span><br><span class="line">    </span><br><span class="line">    runc-&gt;&gt;kernel: 3. pivot_root() 或 chroot() 切换根文件系统</span><br><span class="line">    runc-&gt;&gt;kernel: 4. mount() 挂载/proc/sys/dev等虚拟文件系统</span><br><span class="line">    </span><br><span class="line">    runc-&gt;&gt;seccomp: 5. prctl(PR_SET_SECCOMP) 加载Seccomp规则</span><br><span class="line">    </span><br><span class="line">    runc-&gt;&gt;kernel: 6. setuid/setgid 降权至非root用户</span><br><span class="line">    runc-&gt;&gt;kernel: 7. execve(&quot;/bin/sh&quot;) 执行容器入口进程</span><br><span class="line">    kernel-&gt;&gt;seccomp: 进程每次触发系统调用前</span><br><span class="line">    seccomp--&gt;&gt;kernel: 检查白名单 → 放行/拦截(SIGSYS)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>OCI Spec 实现</strong>：解析<code>config.json</code>创建符合规范的容器，影响调用顺序的关键配置文件</p>
+<p><code>runc</code> 的执行步骤由 <strong><code>config.json</code></strong> 决定（通过<code>runc spec</code>生成），核心顺序锁定在：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;process&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;args&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;/bin/sh&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;user&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;uid&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span> <span class="attr">&quot;gid&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">&#125;</span><span class="punctuation">,</span>    <span class="comment">// Step6: 权限设置</span></span><br><span class="line">    <span class="attr">&quot;capabilities&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span>...<span class="punctuation">&#125;</span>            <span class="comment">// Step3: 能力集</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;root&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;rootfs&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span>        <span class="comment">// Step2: 根文件系统</span></span><br><span class="line">  <span class="attr">&quot;mounts&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span>...<span class="punctuation">]</span><span class="punctuation">,</span>                   <span class="comment">// Step2: 挂载点</span></span><br><span class="line">  <span class="attr">&quot;linux&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;namespaces&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span>...<span class="punctuation">]</span><span class="punctuation">,</span>             <span class="comment">// Step1: 命名空间</span></span><br><span class="line">    <span class="attr">&quot;seccomp&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span>...<span class="punctuation">&#125;</span><span class="punctuation">,</span>                <span class="comment">// Step3: Seccomp规则</span></span><br><span class="line">    <span class="attr">&quot;cgroupsPath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;container01&quot;</span>     <span class="comment">// Step2: Cgroups路径</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>必须：文件系统(Mount) → 主机标识(UTS) → 进程间通信(IPC) → 进程树(PID) → 网络(Network) → 用户权限(User)</strong></p>
+</li>
+<li><p><strong>关键操作</strong>：<code>runc create</code> → <code>runc start</code>（分离容器初始化与启动）</p>
+</li>
+</ul>
+<h4 id="6-Linux-内核核心组件"><a href="#6-Linux-内核核心组件" class="headerlink" title="6. Linux 内核核心组件"></a>6. Linux 内核核心组件</h4><table>
+<thead>
+<tr>
+<th><strong>技术</strong></th>
+<th><strong>作用</strong></th>
+<th><strong>容器中查看命令</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Namespaces</strong></td>
+<td>资源隔离</td>
+<td><code>ls -l /proc/$$/ns</code></td>
+</tr>
+<tr>
+<td><strong>Cgroups v2</strong></td>
+<td>资源限制</td>
+<td><code>cat /sys/fs/cgroup/memory.max</code></td>
+</tr>
+<tr>
+<td><strong>OverlayFS</strong></td>
+<td>分层文件系统</td>
+<td>&#96;mount</td>
+</tr>
+<tr>
+<td><strong>Netfilter</strong></td>
+<td>NAT&#x2F;端口映射</td>
+<td><code>iptables -t nat -vnL DOCKER</code></td>
+</tr>
+</tbody></table>
+<h3 id="全流程示例：创建容器时发生了什么？"><a href="#全流程示例：创建容器时发生了什么？" class="headerlink" title="全流程示例：创建容器时发生了什么？"></a>全流程示例：创建容器时发生了什么？</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    User-&gt;&gt;Docker CLI: docker run nginx</span><br><span class="line">    Docker CLI-&gt;&gt;Dockerd: POST /containers/create</span><br><span class="line">    Dockerd-&gt;&gt;containerd: CreateContainer(gRPC)</span><br><span class="line">    Note over containerd: 检查镜像缓存</span><br><span class="line">    containerd-&gt;&gt;runc: bundle create</span><br><span class="line">    runc-&gt;&gt;Namespaces: clone(CLONE_NEWPID|CLONE_NEWNET...)</span><br><span class="line">    runc-&gt;&gt;Cgroups: /sys/fs/cgroup/docker/cid</span><br><span class="line">    runc-&gt;&gt;OverlayFS: mount overlay(/var/lib/docker/overlay2/layers)</span><br><span class="line">    runc-&gt;&gt;Netfilter: iptables DNAT规则添加</span><br><span class="line">    runc-&gt;&gt;containerd: 容器进程启动成功(pid=2020)</span><br><span class="line">    containerd-&gt;&gt;Dockerd: Success(Created)</span><br><span class="line">    Docker CLI-&gt;&gt;User: Container started</span><br></pre></td></tr></table></figure>
+
+<h3 id="架构演进关键点（2024更新）"><a href="#架构演进关键点（2024更新）" class="headerlink" title="架构演进关键点（2024更新）"></a>架构演进关键点（2024更新）</h3><ol>
+<li><p><strong>去 Docker 单点化</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">timeline</span><br><span class="line">    2017年： docker-containerd 插件 </span><br><span class="line">    2021年： containerd 独立运行时 </span><br><span class="line">    现在： K8s 可直接调用 containerd（绕过 daemon）</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>安全增强</strong>：</p>
+<ul>
+<li>Rootless Mode：无 root 权限运行</li>
+<li>Seccomp&#x2F;AppArmor：强制访问控制</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --security-opt seccomp=/profile.json ...</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="问题剖析"><a href="#问题剖析" class="headerlink" title="问题剖析"></a>问题剖析</h1><hr>
+<h3 id="问题一：dockerd-与-containerd-在容器-镜像管理上的本质区别"><a href="#问题一：dockerd-与-containerd-在容器-镜像管理上的本质区别" class="headerlink" title="问题一：dockerd 与 containerd 在容器&#x2F;镜像管理上的本质区别"></a><strong>问题一：dockerd 与 containerd 在容器&#x2F;镜像管理上的本质区别</strong></h3><h4 id="职责边界对比（关键差异表）"><a href="#职责边界对比（关键差异表）" class="headerlink" title="职责边界对比（关键差异表）"></a>职责边界对比（关键差异表）</h4><table>
+<thead>
+<tr>
+<th><strong>功能维度</strong></th>
+<th><strong>dockerd 职责</strong></th>
+<th><strong>containerd 职责</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>镜像管理</strong></td>
+<td>• 解析 Dockerfile<br>• 镜像标签语义<br>• 多架构镜像分发策略</td>
+<td>• 镜像分片(blobs)存储<br>• 内容寻址(SHA256)<br>• 快照磁盘驱动管理</td>
+</tr>
+<tr>
+<td><strong>容器管理</strong></td>
+<td>• 端口映射规则<br>• 卷绑定挂载路径<br>• 容器别名设置</td>
+<td>• 容器运行时配置(OCI spec)<br>• Linux namespace&#x2F;cgroups 构建<br>• 容器状态机转换</td>
+</tr>
+<tr>
+<td><strong>通信协议</strong></td>
+<td>REST API (HTTP&#x2F;JSON)</td>
+<td>gRPC (高性能二进制协议)</td>
+</tr>
+<tr>
+<td><strong>数据存储位置</strong></td>
+<td>&#x2F;var&#x2F;lib&#x2F;docker&#x2F;</td>
+<td>&#x2F;var&#x2F;lib&#x2F;containerd&#x2F;</td>
+</tr>
+<tr>
+<td><strong>核心价值差异</strong></td>
+<td><strong>用户友好抽象层</strong></td>
+<td><strong>标准化运行时控制层</strong></td>
+</tr>
+</tbody></table>
+<h4 id="▶-实例解析：docker-pull-nginx-的执行流"><a href="#▶-实例解析：docker-pull-nginx-的执行流" class="headerlink" title="▶ 实例解析：docker pull nginx 的执行流"></a>▶ 实例解析：docker pull nginx 的执行流</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    User-&gt;&gt;dockerd: docker pull nginx:1.23</span><br><span class="line">    dockerd-&gt;&gt;Docker_Registry: HTTPS认证 &amp; Manifest请求</span><br><span class="line">    Docker_Registry--&gt;&gt;dockerd: 返回manifest(含多层digest)</span><br><span class="line">    dockerd-&gt;&gt;containerd: PullImage(grpc,digest=docker.io/nginx@sha256:xxx)</span><br><span class="line">    containerd-&gt;&gt;Registry: 请求具体blobs层</span><br><span class="line">    containerd-&gt;&gt;/var/lib/containerd: 存储blobs + 创建快照</span><br><span class="line">    containerd--&gt;&gt;dockerd: 返回Image对象</span><br><span class="line">    dockerd-&gt;&gt;/var/lib/docker: 创建镜像标签元数据</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="问题二：containerd-shim-如何实现运行时解耦"><a href="#问题二：containerd-shim-如何实现运行时解耦" class="headerlink" title="问题二：containerd-shim 如何实现运行时解耦"></a>问题二：containerd-shim 如何实现运行时解耦</h3><h4 id="1-关键机制：双进程孤儿化保护"><a href="#1-关键机制：双进程孤儿化保护" class="headerlink" title="1. 关键机制：双进程孤儿化保护"></a>1. 关键机制：<strong>双进程孤儿化保护</strong></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">graph BT</span><br><span class="line">    pid1[Init进程 PID1] --&gt; shim[containerd-shim] </span><br><span class="line">    shim --&gt; container[容器进程]</span><br><span class="line">    containerd -- 仅连接 --&gt; shim</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>进程树原理</strong>：<ol>
+<li>containerd 调用 <code>fork()</code> 生成 <strong>containerd-shim</strong> 子进程</li>
+<li>shim 进程调用 <code>runc create</code> 创建<strong>容器进程</strong></li>
+<li>shim 进程<strong>脱离父进程管控</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 伪代码：shim 自孤儿化</span></span><br><span class="line"><span class="keyword">if</span> (fork() == <span class="number">0</span>) &#123;  <span class="comment">// shim 子进程创建容器</span></span><br><span class="line">    daemon(<span class="number">0</span>, <span class="number">0</span>); <span class="comment">// 脱离终端</span></span><br><span class="line">    pid = runc_create(<span class="string">&quot;nginx&quot;</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);      <span class="comment">// 父进程终止→shim成孤儿归init托管</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><strong>结果</strong>：shim 进程被 Linux init 进程(PID1)接管，与 containerd <strong>解除父子关系</strong></li>
+</ul>
+<h4 id="2-通信解耦：Unix-Socket-长连接"><a href="#2-通信解耦：Unix-Socket-长连接" class="headerlink" title="2. 通信解耦：Unix Socket 长连接"></a>2. 通信解耦：<strong>Unix Socket 长连接</strong></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">    containerd--gRPC连接--&gt;socket</span><br><span class="line">    shim[containerd-shim]--监听--&gt;socket</span><br><span class="line">    shim--io转发--&gt;日志驱动</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>socket 路径</strong>：<code>/run/containerd/shim.&#123;version&#125;.sock</code></li>
+<li><strong>存活凭证</strong>：即使 containerd 重启, socket 文件保留 → 新 containerd 通过路径自动重连</li>
+</ul>
+<p><strong>containerd和containerd-shim的差异：</strong></p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>技术身份</th>
+<th>操作模式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>containerd</strong></td>
+<td>gRPC <strong>客户端</strong></td>
+<td>发起控制请求</td>
+</tr>
+<tr>
+<td><strong>containerd-shim</strong></td>
+<td>gRPC <strong>服务端</strong></td>
+<td>监听并响应</td>
+</tr>
+</tbody></table>
+<p>containerd-shim 和 containerd 通过 Socket 的分工协作，实现了：</p>
+<ol>
+<li><strong>稳定与控制分离</strong>：shim 作为<strong>状态锚点</strong>护卫容器进程</li>
+<li><strong>弹性能力</strong>：containerd 可热升级&#x2F;重启不影响业务</li>
+<li><strong>安全边界</strong>：Unix Socket 比 TCP 减少 40% 的安全攻击面</li>
+</ol>
+<h4 id="3-核心场景：containerd-重启时的容器保护流程"><a href="#3-核心场景：containerd-重启时的容器保护流程" class="headerlink" title="3. 核心场景：containerd 重启时的容器保护流程"></a>3. 核心场景：containerd 重启时的容器保护流程</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant User</span><br><span class="line">    participant Systemd</span><br><span class="line">    participant containerd</span><br><span class="line">    participant shim</span><br><span class="line">  </span><br><span class="line">    User-&gt;&gt;Systemd: systemctl restart containerd</span><br><span class="line">    Systemd-&gt;&gt;containerd: SIGTERM</span><br><span class="line">    containerd--关闭连接-&gt;shim: 但shim进程仍在运行</span><br><span class="line">    Systemd-&gt;&gt;containerd: 启动新实例</span><br><span class="line">    containerd-&gt;&gt;文件系统: 扫描 /run/containerd/ 下socket文件</span><br><span class="line">    containerd-&gt;&gt;shim: 通过既有socket重新连接</span><br><span class="line">    shim--&gt;&gt;containerd: 报告容器状态(PID/运行时长)</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-关键进程状态验证"><a href="#4-关键进程状态验证" class="headerlink" title="4. 关键进程状态验证"></a>4. 关键进程状态验证</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 重启 containerd 前后的进程树对比</span></span><br><span class="line">$ pstree -p before_restart</span><br><span class="line">containerd(1000)───containerd-shim(2000)───nginx(2001)</span><br><span class="line"></span><br><span class="line">$ systemctl restart containerd</span><br><span class="line"></span><br><span class="line">$ pstree -p after_restart</span><br><span class="line">systemd(1)───containerd-shim(2000)───nginx(2001)  <span class="comment"># shim被init接管</span></span><br><span class="line">containerd(3000)                                 <span class="comment"># 新进程建立</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="深度技术原理剖析"><a href="#深度技术原理剖析" class="headerlink" title="深度技术原理剖析"></a><strong>深度技术原理剖析</strong></h3><h4 id="为何容器进程不会成为僵尸进程？"><a href="#为何容器进程不会成为僵尸进程？" class="headerlink" title="为何容器进程不会成为僵尸进程？"></a>为何容器进程不会成为僵尸进程？</h4><ol>
+<li><strong>shim 的 waitpid 机制</strong>：<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// containerd-shim 核心处理循环</span></span><br><span class="line"><span class="keyword">for</span> &#123;</span><br><span class="line">    status, err := syscall.Wait4(<span class="number">-1</span>, &amp;rusage, <span class="number">0</span>)  <span class="comment">// 等待任何子进程退出</span></span><br><span class="line">    <span class="keyword">if</span> err == syscall.ECHILD &#123;</span><br><span class="line">        <span class="keyword">break</span>  <span class="comment">// 无子进程时退出</span></span><br><span class="line">    &#125;</span><br><span class="line">    saveContainerExitCode(status)  <span class="comment">// 记录容器退出状态</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>多级孤儿化保护</strong>：<ul>
+<li>容器进程退出 → shim 调用 <code>wait()</code> 回收 → 避免僵尸</li>
+<li>shim 自身退出 → 由 init 进程回收</li>
+</ul>
+</li>
+</ol>
+<h4 id="IO-流如何保持不中断？"><a href="#IO-流如何保持不中断？" class="headerlink" title="IO 流如何保持不中断？"></a>IO 流如何保持不中断？</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">    container[容器进程] --&gt;|stdout| fifo1[命名管道1]</span><br><span class="line">    fifo1 --&gt; shim[shim进程]</span><br><span class="line">    shim --&gt;|重定向| fifo2[日志驱动管道]</span><br><span class="line">    fifo2 --&gt; containerd[新containerd]</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>持久化管道</strong>：<code>/run/containerd/fifo/</code> 下的命名管道文件保持打开</li>
+</ul>
+<hr>
+<p>这种精妙的 <strong>进程孤儿化 + Unix Socket重连</strong> 机制，实现了容器运行时的热升级与故障恢复能力，是 Docker&#x2F;containerd 高可用的架构基石。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://mistfjord.github.io">kin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://mistfjord.github.io/2025/06/25/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/">https://mistfjord.github.io/2025/06/25/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><a class="post-meta__tags" href="/tags/%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C/">基础概念与操作</a><a class="post-meta__tags" href="/tags/%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86/">底层实现与原理</a></div><div class="post-share"><div class="social-share" data-image="/images/head.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/06/25/kubernetes-client-go-client-go%20Indexer%E6%9C%BA%E5%88%B6%E4%B8%8E%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="client-go Indexer机制与源码解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">Previous</div><div class="info-item-2">client-go Indexer机制与源码解析</div></div><div class="info-2"><div class="info-item-1"> client-go informers 机制中的Indexer索引解析  informers机制整理流程 以下结合 Kubernetes client-go 源码中的数据结构，详细说明 Indexer 如何存储数据。我们将通过一个具体示例展示内存中的数据结构和索引关系，源码基于 k8s.io/client-go@v1.28.0。  Indexer解析Indexer 是 Informers 机制中缓存层的核心索引引擎，它通过多级索引实现高效的对象检索。 Indexer 在数据流中的关键作用：  持久化存储：作为本地缓存存储从 API Server 获取的资源对象 索引加速：提供基于自定义索引的快速检索能力 事件分发基础：为事件处理器提供查询上下文  一、核心数据结构定义路径：client-go/tools/cache/thread_safe_store.go 1. 基础存储结构Indexer接口1234567891011121314151617181920212223// Indexer 扩展了 Store，支持多重索引（index）功能，//...</div></div></div></a><a class="pagination-related  no-desc" href="/2025/06/23/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%EF%BC%9AUnionFS%EF%BC%88%E8%81%94%E5%90%88%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%EF%BC%89/" title="docker容器技术原理：UnionFS（联合文件系统）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">Next</div><div class="info-item-2">docker容器技术原理：UnionFS（联合文件系统）</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/06/16/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%EF%BC%9ACgroup/" title="docker容器技术原理：Cgroup"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-06-25</div><div class="info-item-2">docker容器技术原理：Cgroup</div></div><div class="info-2"><div class="info-item-1">1、cgroups简介cgroups（全称：control groups）是 Linux 内核的一个功能，它可以实现限制进程或者进程组的资源（如 CPU、内存、磁盘 IO 等）。  在 2006 年，Google 的工程师（ Rohit Seth 和 Paul Menage 为主要发起人） 发起了这个项目，起初项目名称并不是cgroups，而被称为进程容器（process containers）。在 2007 年cgroups代码计划合入Linux 内核，但是当时在 Linux 内核中，容器（container）这个词被广泛使用，并且拥有不同的含义。为了避免命名混乱和歧义，进程容器被重名为cgroups，并在 2008 年成功合入 Linux 2.6.24 版本中。cgroups目前已经成为 systemd、Docker、Linux Containers（LXC） 等技术的基础。  cgroups 功能及核心概念cgroups 主要提供了如下功能。  资源限制：...</div></div></div></a><a class="pagination-related" href="/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%EF%BC%9ANameSpace/" title="docker容器技术原理：NameSpace"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-06-25</div><div class="info-item-2">docker容器技术原理：NameSpace</div></div><div class="info-2"><div class="info-item-1">Docker 是使用 Linux 的 Namespace 技术实现各种资源隔离的。 什么是 Namespace？下面是 Namespace 的维基百科定义：  Namespace 是 Linux 内核的一项功能，该功能对内核资源进行分区，以使一组进程看到一组资源，而另一组进程看到另一组资源。Namespace 的工作方式通过为一组资源和进程设置相同的 Namespace 而起作用，但是这些 Namespace 引用了不同的资源。资源可能存在于多个 Namespace 中。这些资源可以是进程 ID、主机名、用户 ID、文件名、与网络访问相关的名称和进程间通信。  简单来说，Namespace 是 Linux 内核的一个特性，该特性可以实现在同一主机系统中，对进程 ID、主机名、用户 ID、文件名、网络和进程间通信等资源的隔离。Docker 利用 Linux 内核的 Namespace 特性，实现了每个容器的资源相互隔离，从而保证容器内部只能访问到自己 Namespace 的资源。    Namespace 类型 隔离资源 内核版本 Docker...</div></div></div></a><a class="pagination-related no-desc" href="/2025/06/23/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%EF%BC%9AUnionFS%EF%BC%88%E8%81%94%E5%90%88%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%EF%BC%89/" title="docker容器技术原理：UnionFS（联合文件系统）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-06-25</div><div class="info-item-2">docker容器技术原理：UnionFS（联合文件系统）</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/head.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">kin</div><div class="author-info-description">RUN ON</div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/mistFjord/"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Docker%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%89%96%E6%9E%90"><span class="toc-text">Docker架构设计剖析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Docker-%E6%9E%B6%E6%9E%84%E5%9B%BE%EF%BC%88%E6%96%87%E5%AD%97%E6%8F%8F%E8%BF%B0-%E4%BC%AA%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84%EF%BC%89"><span class="toc-text">Docker 架构图（文字描述 + 伪代码结构）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E5%8A%9F%E8%83%BD%E8%AF%B4%E6%98%8E"><span class="toc-text">核心组件功能说明</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Docker-Client-CLI"><span class="toc-text">1. Docker Client&#x2F;CLI</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-Docker-Daemon-dockerd"><span class="toc-text">2. Docker Daemon (dockerd)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-containerd-%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="toc-text">3. containerd (核心容器运行时)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-containerd-shim-%E9%9A%94%E7%A6%BB%E5%B1%82"><span class="toc-text">4. containerd-shim (隔离层)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-runC%EF%BC%9A%E8%BD%BB%E9%87%8F%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E"><span class="toc-text">5. runC：轻量级容器执行引擎</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-Linux-%E5%86%85%E6%A0%B8%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6"><span class="toc-text">6. Linux 内核核心组件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E6%B5%81%E7%A8%8B%E7%A4%BA%E4%BE%8B%EF%BC%9A%E5%88%9B%E5%BB%BA%E5%AE%B9%E5%99%A8%E6%97%B6%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">全流程示例：创建容器时发生了什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84%E6%BC%94%E8%BF%9B%E5%85%B3%E9%94%AE%E7%82%B9%EF%BC%882024%E6%9B%B4%E6%96%B0%EF%BC%89"><span class="toc-text">架构演进关键点（2024更新）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%89%96%E6%9E%90"><span class="toc-text">问题剖析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E4%B8%80%EF%BC%9Adockerd-%E4%B8%8E-containerd-%E5%9C%A8%E5%AE%B9%E5%99%A8-%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86%E4%B8%8A%E7%9A%84%E6%9C%AC%E8%B4%A8%E5%8C%BA%E5%88%AB"><span class="toc-text">问题一：dockerd 与 containerd 在容器&#x2F;镜像管理上的本质区别</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%81%8C%E8%B4%A3%E8%BE%B9%E7%95%8C%E5%AF%B9%E6%AF%94%EF%BC%88%E5%85%B3%E9%94%AE%E5%B7%AE%E5%BC%82%E8%A1%A8%EF%BC%89"><span class="toc-text">职责边界对比（关键差异表）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%96%B6-%E5%AE%9E%E4%BE%8B%E8%A7%A3%E6%9E%90%EF%BC%9Adocker-pull-nginx-%E7%9A%84%E6%89%A7%E8%A1%8C%E6%B5%81"><span class="toc-text">▶ 实例解析：docker pull nginx 的执行流</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E4%BA%8C%EF%BC%9Acontainerd-shim-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%BF%90%E8%A1%8C%E6%97%B6%E8%A7%A3%E8%80%A6"><span class="toc-text">问题二：containerd-shim 如何实现运行时解耦</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%85%B3%E9%94%AE%E6%9C%BA%E5%88%B6%EF%BC%9A%E5%8F%8C%E8%BF%9B%E7%A8%8B%E5%AD%A4%E5%84%BF%E5%8C%96%E4%BF%9D%E6%8A%A4"><span class="toc-text">1. 关键机制：双进程孤儿化保护</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%80%9A%E4%BF%A1%E8%A7%A3%E8%80%A6%EF%BC%9AUnix-Socket-%E9%95%BF%E8%BF%9E%E6%8E%A5"><span class="toc-text">2. 通信解耦：Unix Socket 长连接</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%A0%B8%E5%BF%83%E5%9C%BA%E6%99%AF%EF%BC%9Acontainerd-%E9%87%8D%E5%90%AF%E6%97%B6%E7%9A%84%E5%AE%B9%E5%99%A8%E4%BF%9D%E6%8A%A4%E6%B5%81%E7%A8%8B"><span class="toc-text">3. 核心场景：containerd 重启时的容器保护流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E5%85%B3%E9%94%AE%E8%BF%9B%E7%A8%8B%E7%8A%B6%E6%80%81%E9%AA%8C%E8%AF%81"><span class="toc-text">4. 关键进程状态验证</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B1%E5%BA%A6%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90"><span class="toc-text">深度技术原理剖析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BD%95%E5%AE%B9%E5%99%A8%E8%BF%9B%E7%A8%8B%E4%B8%8D%E4%BC%9A%E6%88%90%E4%B8%BA%E5%83%B5%E5%B0%B8%E8%BF%9B%E7%A8%8B%EF%BC%9F"><span class="toc-text">为何容器进程不会成为僵尸进程？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#IO-%E6%B5%81%E5%A6%82%E4%BD%95%E4%BF%9D%E6%8C%81%E4%B8%8D%E4%B8%AD%E6%96%AD%EF%BC%9F"><span class="toc-text">IO 流如何保持不中断？</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E8%AE%B0-hexo-butterfly%E4%B8%BB%E9%A2%98%E8%87%AA%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE/" title="hexo-butterfly主题自定义配置">hexo-butterfly主题自定义配置</a><time datetime="2025-06-25T09:50:15.674Z" title="Created 2025-06-25 17:50:15">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/kubernetes-client-go-k8s%20informers%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/" title="k8s informers机制详解">k8s informers机制详解</a><time datetime="2025-06-25T09:43:08.000Z" title="Created 2025-06-25 17:43:08">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" title="docker架构设计">docker架构设计</a><time datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/kubernetes-client-go-client-go%20Indexer%E6%9C%BA%E5%88%B6%E4%B8%8E%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="client-go Indexer机制与源码解析">client-go Indexer机制与源码解析</a><time datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/kubernetes-client-go-client-go%20Reflector%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="client-go Reflector源码解析">client-go Reflector源码解析</a><time datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/images/default.png);"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By kin</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

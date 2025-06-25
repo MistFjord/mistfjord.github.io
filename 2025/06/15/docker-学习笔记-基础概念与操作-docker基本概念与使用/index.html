@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>docker基本概念与使用 | 断情の博客</title><meta name="author" content="kin"><meta name="copyright" content="kin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="一、基础部分（基本使用）1. Docker核心概念 镜像（Image）、容器（Container）、仓库（Repository）的概念 Docker与虚拟机的区别（轻量级、资源共享、启动速度等）  3. 基本命令操作 镜像管理： docker pull、docker images、docker rmi、docker build（Dockerfile） docker tag、docker push、">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker基本概念与使用">
+<meta property="og:url" content="https://mistfjord.github.io/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-docker%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%B8%8E%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="断情の博客">
+<meta property="og:description" content="一、基础部分（基本使用）1. Docker核心概念 镜像（Image）、容器（Container）、仓库（Repository）的概念 Docker与虚拟机的区别（轻量级、资源共享、启动速度等）  3. 基本命令操作 镜像管理： docker pull、docker images、docker rmi、docker build（Dockerfile） docker tag、docker push、">
+<meta property="og:locale">
+<meta property="og:image" content="https://mistfjord.github.io/images/head.png">
+<meta property="article:published_time" content="2025-06-15T09:30:22.000Z">
+<meta property="article:modified_time" content="2025-06-25T09:50:15.663Z">
+<meta property="article:author" content="kin">
+<meta property="article:tag" content="学习笔记">
+<meta property="article:tag" content="基础概念与操作">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mistfjord.github.io/images/head.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "docker基本概念与使用",
+  "url": "https://mistfjord.github.io/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-docker%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%B8%8E%E4%BD%BF%E7%94%A8/",
+  "image": "https://mistfjord.github.io/images/head.png",
+  "datePublished": "2025-06-15T09:30:22.000Z",
+  "dateModified": "2025-06-25T09:50:15.663Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "kin",
+      "url": "https://mistfjord.github.io/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/images/img_2.png"><link rel="canonical" href="https://mistfjord.github.io/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-docker%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%B8%8E%E4%BD%BF%E7%94%A8/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"No results found for: ${query}","hits_stats":"${hits} articles found"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'medium_zoom',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'docker基本概念与使用',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/images/default.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/head.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/images/default.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">断情の博客</span></a><a class="nav-page-title" href="/"><span class="site-name">docker基本概念与使用</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">docker基本概念与使用</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-06-15T09:30:22.000Z" title="Created 2025-06-15 17:30:22">2025-06-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-06-25T09:50:15.663Z" title="Updated 2025-06-25 17:50:15">2025-06-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/docker/">docker</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word Count:</span><span class="word-count">711</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading Time:</span><span>2mins</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h3 id="一、基础部分（基本使用）"><a href="#一、基础部分（基本使用）" class="headerlink" title="一、基础部分（基本使用）"></a><strong>一、基础部分（基本使用）</strong></h3><h4 id="1-Docker核心概念"><a href="#1-Docker核心概念" class="headerlink" title="1. Docker核心概念"></a>1. <strong>Docker核心概念</strong></h4><ul>
+<li>镜像（Image）、容器（Container）、仓库（Repository）的概念</li>
+<li>Docker与虚拟机的区别（轻量级、资源共享、启动速度等）</li>
+</ul>
+<h4 id="3-基本命令操作"><a href="#3-基本命令操作" class="headerlink" title="3. 基本命令操作"></a>3. <strong>基本命令操作</strong></h4><ul>
+<li>镜像管理：<ul>
+<li><code>docker pull</code>、<code>docker images</code>、<code>docker rmi</code>、<code>docker build</code>（Dockerfile）</li>
+<li><code>docker tag</code>、<code>docker push</code>、<code>docker save</code>、<code>docker load</code></li>
+</ul>
+</li>
+<li>容器管理：<ul>
+<li><code>docker run</code>（各种参数：<code>-d</code>, <code>-p</code>, <code>-v</code>, <code>--name</code>, <code>--network</code>, <code>--restart</code>等）</li>
+<li><code>docker ps</code>、<code>docker stop</code>、<code>docker start</code>、<code>docker restart</code>、<code>docker rm</code></li>
+<li><code>docker logs</code>、<code>docker exec</code>、<code>docker inspect</code></li>
+</ul>
+</li>
+<li>其他常用命令：<ul>
+<li><code>docker info</code>、<code>docker version</code>、<code>docker system df</code>（查看磁盘使用）</li>
+</ul>
+</li>
+</ul>
+<h1 id="架构设计"><a href="#架构设计" class="headerlink" title="架构设计"></a>架构设计</h1><p>Docker采用了C&#x2F;S（客户端-服务器）架构。主要包括以下几个组件：</p>
+<ol>
+<li><strong>Docker客户端（Client）</strong>：<ul>
+<li>用户通过Docker客户端与Docker交互。客户端发送命令给Docker守护进程（Docker Daemon），然后守护进程执行命令。</li>
+<li>客户端可以运行在宿主机上，也可以远程连接守护进程。</li>
+</ul>
+</li>
+<li><strong>Docker守护进程（Docker Daemon）</strong>：<ul>
+<li>Docker Daemon是运行在主机上的后台进程，负责管理Docker对象（镜像、容器、网络、存储卷等）。</li>
+<li>监听来自客户端的请求（通过REST API）并处理。</li>
+</ul>
+</li>
+<li><strong>Docker Registries</strong>：<ul>
+<li>用于存储Docker镜像。Docker Hub是公共的Registry，用户也可以建立私有的Registry。</li>
+</ul>
+</li>
+<li><strong>Docker对象</strong>：<ul>
+<li><strong>镜像（Images）</strong>：只读模板。</li>
+<li><strong>容器（Containers）</strong>：运行时的镜像实例。</li>
+<li><strong>网络（Networks）</strong>：Docker提供了多种网络模式连接容器。</li>
+<li><strong>数据卷（Volumes）</strong>：用于持久化存储容器数据，避免容器停止后数据丢失。</li>
+</ul>
+</li>
+</ol>
+<h1 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h1><ol>
+<li><strong>镜像（Image）</strong>：<ul>
+<li>Docker镜像是用于创建Docker容器的模板。它类似于虚拟机镜像，但更轻量级。</li>
+<li>镜像采用分层结构，每一层是只读的，并且可以被多个容器共享。最上层是容器层，可写。</li>
+<li>例如：一个Ubuntu镜像，一个带有Nginx服务的Web应用镜像。</li>
+</ul>
+</li>
+<li><strong>容器（Container）</strong>：<ul>
+<li>容器是镜像的运行实例。当你运行一个镜像时，你就创建了一个容器。</li>
+<li>容器可以被启动、停止、删除等，每个容器都是独立和安全的沙箱。</li>
+<li>可以把容器看作是一个轻量级的Linux运行环境。</li>
+</ul>
+</li>
+<li><strong>仓库（Repository）</strong>：<ul>
+<li>仓库是集中存放镜像的地方，分为公共仓库和私有仓库。</li>
+<li>Docker官方仓库是Docker Hub，你也可以搭建私有仓库（如Harbor）。</li>
+<li>仓库中有多个镜像，每个镜像可以有多个标签（Tag）。</li>
+</ul>
+</li>
+<li><strong>Registry</strong>：<ul>
+<li>仓库注册服务器（Registry）是存放仓库的地方。Docker Hub就是官方的Registry。</li>
+</ul>
+</li>
+<li><strong>Dockerfile</strong>：<ul>
+<li>Dockerfile是一个文本文件，包含了一系列命令和指令，用于自动化构建镜像。</li>
+<li>常用的指令包括：FROM（基础镜像）、RUN（执行命令）、COPY（复制文件）、EXPOSE（暴露端口）、CMD（容器启动命令）等。</li>
+</ul>
+</li>
+</ol>
+<h1 id="使用镜像"><a href="#使用镜像" class="headerlink" title="使用镜像"></a>使用镜像</h1><h1 id="操作容器"><a href="#操作容器" class="headerlink" title="操作容器"></a>操作容器</h1><h1 id="访问仓库"><a href="#访问仓库" class="headerlink" title="访问仓库"></a>访问仓库</h1><h1 id="数据管理"><a href="#数据管理" class="headerlink" title="数据管理"></a>数据管理</h1><h1 id="使用网络"><a href="#使用网络" class="headerlink" title="使用网络"></a>使用网络</h1><h1 id="高级网络配置"><a href="#高级网络配置" class="headerlink" title="高级网络配置"></a>高级网络配置</h1><h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><h2 id="Docker-buildx"><a href="#Docker-buildx" class="headerlink" title="Docker  buildx"></a>Docker  buildx</h2></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://mistfjord.github.io">kin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://mistfjord.github.io/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-docker%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%B8%8E%E4%BD%BF%E7%94%A8/">https://mistfjord.github.io/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-docker%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%B8%8E%E4%BD%BF%E7%94%A8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><a class="post-meta__tags" href="/tags/%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C/">基础概念与操作</a></div><div class="post-share"><div class="social-share" data-image="/images/head.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%EF%BC%9ANameSpace/" title="docker容器技术原理：NameSpace"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">Previous</div><div class="info-item-2">docker容器技术原理：NameSpace</div></div><div class="info-2"><div class="info-item-1">Docker 是使用 Linux 的 Namespace 技术实现各种资源隔离的。 什么是 Namespace？下面是 Namespace 的维基百科定义：  Namespace 是 Linux 内核的一项功能，该功能对内核资源进行分区，以使一组进程看到一组资源，而另一组进程看到另一组资源。Namespace 的工作方式通过为一组资源和进程设置相同的 Namespace 而起作用，但是这些 Namespace 引用了不同的资源。资源可能存在于多个 Namespace 中。这些资源可以是进程 ID、主机名、用户 ID、文件名、与网络访问相关的名称和进程间通信。  简单来说，Namespace 是 Linux 内核的一个特性，该特性可以实现在同一主机系统中，对进程 ID、主机名、用户 ID、文件名、网络和进程间通信等资源的隔离。Docker 利用 Linux 内核的 Namespace 特性，实现了每个容器的资源相互隔离，从而保证容器内部只能访问到自己 Namespace 的资源。    Namespace 类型 隔离资源 内核版本 Docker...</div></div></div></a><a class="pagination-related" href="/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-docker-guide/" title="docker-guide"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">Next</div><div class="info-item-2">docker-guide</div></div><div class="info-2"><div class="info-item-1">一、基础部分（基本使用）1. Docker核心概念 镜像（Image）、容器（Container）、仓库（Repository）的概念 Docker与虚拟机的区别（轻量级、资源共享、启动速度等）  2. Docker安装与配置 在不同操作系统（Linux, Windows, macOS）上的安装 配置镜像加速器（阿里云等）  3. 基本命令操作 镜像管理： docker pull、docker images、docker rmi、docker build（Dockerfile） docker tag、docker push、docker save、docker load   容器管理： docker run（各种参数：-d, -p, -v, --name, --network, --restart等） docker ps、docker stop、docker start、docker restart、docker rm docker logs、docker exec、docker inspect   其他常用命令： docker info、docker...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/06/16/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%EF%BC%9ACgroup/" title="docker容器技术原理：Cgroup"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-06-25</div><div class="info-item-2">docker容器技术原理：Cgroup</div></div><div class="info-2"><div class="info-item-1">1、cgroups简介cgroups（全称：control groups）是 Linux 内核的一个功能，它可以实现限制进程或者进程组的资源（如 CPU、内存、磁盘 IO 等）。  在 2006 年，Google 的工程师（ Rohit Seth 和 Paul Menage 为主要发起人） 发起了这个项目，起初项目名称并不是cgroups，而被称为进程容器（process containers）。在 2007 年cgroups代码计划合入Linux 内核，但是当时在 Linux 内核中，容器（container）这个词被广泛使用，并且拥有不同的含义。为了避免命名混乱和歧义，进程容器被重名为cgroups，并在 2008 年成功合入 Linux 2.6.24 版本中。cgroups目前已经成为 systemd、Docker、Linux Containers（LXC） 等技术的基础。  cgroups 功能及核心概念cgroups 主要提供了如下功能。  资源限制：...</div></div></div></a><a class="pagination-related" href="/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%EF%BC%9ANameSpace/" title="docker容器技术原理：NameSpace"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-06-25</div><div class="info-item-2">docker容器技术原理：NameSpace</div></div><div class="info-2"><div class="info-item-1">Docker 是使用 Linux 的 Namespace 技术实现各种资源隔离的。 什么是 Namespace？下面是 Namespace 的维基百科定义：  Namespace 是 Linux 内核的一项功能，该功能对内核资源进行分区，以使一组进程看到一组资源，而另一组进程看到另一组资源。Namespace 的工作方式通过为一组资源和进程设置相同的 Namespace 而起作用，但是这些 Namespace 引用了不同的资源。资源可能存在于多个 Namespace 中。这些资源可以是进程 ID、主机名、用户 ID、文件名、与网络访问相关的名称和进程间通信。  简单来说，Namespace 是 Linux 内核的一个特性，该特性可以实现在同一主机系统中，对进程 ID、主机名、用户 ID、文件名、网络和进程间通信等资源的隔离。Docker 利用 Linux 内核的 Namespace 特性，实现了每个容器的资源相互隔离，从而保证容器内部只能访问到自己 Namespace 的资源。    Namespace 类型 隔离资源 内核版本 Docker...</div></div></div></a><a class="pagination-related no-desc" href="/2025/06/23/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%EF%BC%9AUnionFS%EF%BC%88%E8%81%94%E5%90%88%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%EF%BC%89/" title="docker容器技术原理：UnionFS（联合文件系统）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-06-25</div><div class="info-item-2">docker容器技术原理：UnionFS（联合文件系统）</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/head.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">kin</div><div class="author-info-description">RUN ON</div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/mistFjord/"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E9%83%A8%E5%88%86%EF%BC%88%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%EF%BC%89"><span class="toc-text">一、基础部分（基本使用）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Docker%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-text">1. Docker核心概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4%E6%93%8D%E4%BD%9C"><span class="toc-text">3. 基本命令操作</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="toc-text">架构设计</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="toc-text">基础概念</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E9%95%9C%E5%83%8F"><span class="toc-text">使用镜像</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E5%AE%B9%E5%99%A8"><span class="toc-text">操作容器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E4%BB%93%E5%BA%93"><span class="toc-text">访问仓库</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86"><span class="toc-text">数据管理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E7%BD%91%E7%BB%9C"><span class="toc-text">使用网络</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%AB%98%E7%BA%A7%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE"><span class="toc-text">高级网络配置</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B6%E4%BB%96"><span class="toc-text">其他</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-buildx"><span class="toc-text">Docker  buildx</span></a></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E8%AE%B0-hexo-butterfly%E4%B8%BB%E9%A2%98%E8%87%AA%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE/" title="hexo-butterfly主题自定义配置">hexo-butterfly主题自定义配置</a><time datetime="2025-06-25T09:50:15.674Z" title="Created 2025-06-25 17:50:15">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/kubernetes-client-go-k8s%20informers%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/" title="k8s informers机制详解">k8s informers机制详解</a><time datetime="2025-06-25T09:43:08.000Z" title="Created 2025-06-25 17:43:08">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" title="docker架构设计">docker架构设计</a><time datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/kubernetes-client-go-client-go%20Indexer%E6%9C%BA%E5%88%B6%E4%B8%8E%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="client-go Indexer机制与源码解析">client-go Indexer机制与源码解析</a><time datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/kubernetes-client-go-client-go%20Reflector%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="client-go Reflector源码解析">client-go Reflector源码解析</a><time datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/images/default.png);"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By kin</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

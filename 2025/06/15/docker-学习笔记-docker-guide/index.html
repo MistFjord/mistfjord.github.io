@@ -1,0 +1,288 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>docker-guide | 断情の博客</title><meta name="author" content="kin"><meta name="copyright" content="kin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="一、基础部分（基本使用）1. Docker核心概念 镜像（Image）、容器（Container）、仓库（Repository）的概念 Docker与虚拟机的区别（轻量级、资源共享、启动速度等）  2. Docker安装与配置 在不同操作系统（Linux, Windows, macOS）上的安装 配置镜像加速器（阿里云等）  3. 基本命令操作 镜像管理： docker pull、docker i">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker-guide">
+<meta property="og:url" content="https://mistfjord.github.io/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-docker-guide/index.html">
+<meta property="og:site_name" content="断情の博客">
+<meta property="og:description" content="一、基础部分（基本使用）1. Docker核心概念 镜像（Image）、容器（Container）、仓库（Repository）的概念 Docker与虚拟机的区别（轻量级、资源共享、启动速度等）  2. Docker安装与配置 在不同操作系统（Linux, Windows, macOS）上的安装 配置镜像加速器（阿里云等）  3. 基本命令操作 镜像管理： docker pull、docker i">
+<meta property="og:locale">
+<meta property="og:image" content="https://mistfjord.github.io/images/head.png">
+<meta property="article:published_time" content="2025-06-15T09:29:09.000Z">
+<meta property="article:modified_time" content="2025-06-25T09:50:15.663Z">
+<meta property="article:author" content="kin">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mistfjord.github.io/images/head.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "docker-guide",
+  "url": "https://mistfjord.github.io/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-docker-guide/",
+  "image": "https://mistfjord.github.io/images/head.png",
+  "datePublished": "2025-06-15T09:29:09.000Z",
+  "dateModified": "2025-06-25T09:50:15.663Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "kin",
+      "url": "https://mistfjord.github.io/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/images/img_2.png"><link rel="canonical" href="https://mistfjord.github.io/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-docker-guide/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"No results found for: ${query}","hits_stats":"${hits} articles found"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'medium_zoom',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'docker-guide',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/images/default.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/head.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/images/default.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">断情の博客</span></a><a class="nav-page-title" href="/"><span class="site-name">docker-guide</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">docker-guide</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-06-15T09:29:09.000Z" title="Created 2025-06-15 17:29:09">2025-06-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-06-25T09:50:15.663Z" title="Updated 2025-06-25 17:50:15">2025-06-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/docker/">docker</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word Count:</span><span class="word-count">925</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading Time:</span><span>3mins</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h3 id="一、基础部分（基本使用）"><a href="#一、基础部分（基本使用）" class="headerlink" title="一、基础部分（基本使用）"></a><strong>一、基础部分（基本使用）</strong></h3><h4 id="1-Docker核心概念"><a href="#1-Docker核心概念" class="headerlink" title="1. Docker核心概念"></a>1. <strong>Docker核心概念</strong></h4><ul>
+<li>镜像（Image）、容器（Container）、仓库（Repository）的概念</li>
+<li>Docker与虚拟机的区别（轻量级、资源共享、启动速度等）</li>
+</ul>
+<h4 id="2-Docker安装与配置"><a href="#2-Docker安装与配置" class="headerlink" title="2. Docker安装与配置"></a>2. <strong>Docker安装与配置</strong></h4><ul>
+<li>在不同操作系统（Linux, Windows, macOS）上的安装</li>
+<li>配置镜像加速器（阿里云等）</li>
+</ul>
+<h4 id="3-基本命令操作"><a href="#3-基本命令操作" class="headerlink" title="3. 基本命令操作"></a>3. <strong>基本命令操作</strong></h4><ul>
+<li>镜像管理：<ul>
+<li><code>docker pull</code>、<code>docker images</code>、<code>docker rmi</code>、<code>docker build</code>（Dockerfile）</li>
+<li><code>docker tag</code>、<code>docker push</code>、<code>docker save</code>、<code>docker load</code></li>
+</ul>
+</li>
+<li>容器管理：<ul>
+<li><code>docker run</code>（各种参数：<code>-d</code>, <code>-p</code>, <code>-v</code>, <code>--name</code>, <code>--network</code>, <code>--restart</code>等）</li>
+<li><code>docker ps</code>、<code>docker stop</code>、<code>docker start</code>、<code>docker restart</code>、<code>docker rm</code></li>
+<li><code>docker logs</code>、<code>docker exec</code>、<code>docker inspect</code></li>
+</ul>
+</li>
+<li>其他常用命令：<ul>
+<li><code>docker info</code>、<code>docker version</code>、<code>docker system df</code>（查看磁盘使用）</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-Dockerfile编写"><a href="#4-Dockerfile编写" class="headerlink" title="4. Dockerfile编写"></a>4. <strong>Dockerfile编写</strong></h4><ul>
+<li>常用指令：<code>FROM</code>, <code>RUN</code>, <code>CMD</code>, <code>ENTRYPOINT</code>, <code>COPY</code>, <code>ADD</code>, <code>ENV</code>, <code>ARG</code>, <code>WORKDIR</code>, <code>USER</code>, <code>EXPOSE</code>, <code>VOLUME</code></li>
+<li>多阶段构建（Multi-stage builds）</li>
+<li>最佳实践（减少镜像层数、使用.dockerignore等）</li>
+</ul>
+<h4 id="5-Docker-Compose"><a href="#5-Docker-Compose" class="headerlink" title="5. Docker Compose"></a>5. <strong>Docker Compose</strong></h4><ul>
+<li>编写<code>docker-compose.yml</code>文件（<code>version</code>, <code>services</code>, <code>networks</code>, <code>volumes</code>）</li>
+<li>常用命令：<code>docker-compose up</code>, <code>down</code>, <code>ps</code>, <code>logs</code>, <code>exec</code>, <code>build</code></li>
+<li>环境变量文件（.env）的使用</li>
+</ul>
+<h4 id="6-Docker网络"><a href="#6-Docker网络" class="headerlink" title="6. Docker网络"></a>6. <strong>Docker网络</strong></h4><ul>
+<li>网络模式：<code>bridge</code>, <code>host</code>, <code>none</code>, <code>container:&lt;name|id&gt;</code></li>
+<li>创建自定义网络：<code>docker network create</code></li>
+<li>容器间通信（同一网络内的容器通过服务名通信）</li>
+</ul>
+<h4 id="7-Docker存储"><a href="#7-Docker存储" class="headerlink" title="7. Docker存储"></a>7. <strong>Docker存储</strong></h4><ul>
+<li>数据卷（Volume）：创建、使用、备份</li>
+<li>绑定挂载（Bind Mount）</li>
+<li>临时文件系统（tmpfs）</li>
+</ul>
+<h3 id="二、高级部分（底层原理）"><a href="#二、高级部分（底层原理）" class="headerlink" title="二、高级部分（底层原理）"></a><strong>二、高级部分（底层原理）</strong></h3><h4 id="1-Docker架构"><a href="#1-Docker架构" class="headerlink" title="1. Docker架构"></a>1. <strong>Docker架构</strong></h4><ul>
+<li>Client-Server架构（Docker客户端与Docker守护进程）</li>
+<li>组件：Docker Daemon, Containerd, Runc, Docker CLI</li>
+</ul>
+<h4 id="2-容器核心技术"><a href="#2-容器核心技术" class="headerlink" title="2. 容器核心技术"></a>2. <strong>容器核心技术</strong></h4><ul>
+<li><strong>Namespace</strong>：实现隔离（PID, IPC, Network, Mount, UTS, User）</li>
+<li><strong>Cgroups</strong>：实现资源限制（CPU、内存、磁盘I&#x2F;O等）</li>
+<li>UnionFS（联合文件系统）：镜像分层与容器读写层<ul>
+<li>OverlayFS的工作原理（lowerdir, upperdir, merged, workdir）</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-容器运行时"><a href="#3-容器运行时" class="headerlink" title="3. 容器运行时"></a>3. <strong>容器运行时</strong></h4><ul>
+<li>OCI（Open Container Initiative）标准</li>
+<li>runc：容器运行时实现</li>
+<li>containerd：管理容器生命周期（创建、启动、停止、删除等）</li>
+</ul>
+<h4 id="4-镜像原理"><a href="#4-镜像原理" class="headerlink" title="4. 镜像原理"></a>4. <strong>镜像原理</strong></h4><ul>
+<li>镜像的分层结构（每一层都是只读的，容器层可写）</li>
+<li>镜像存储驱动（Overlay2, aufs, devicemapper等）</li>
+<li>镜像分发（Docker Registry V2 API）</li>
+</ul>
+<h4 id="5-容器安全"><a href="#5-容器安全" class="headerlink" title="5. 容器安全"></a>5. <strong>容器安全</strong></h4><ul>
+<li>非root用户运行容器（<code>USER</code>指令）</li>
+<li>安全扫描（<code>docker scan</code>）</li>
+<li>能力（Capabilities）控制（如去掉<code>CAP_SYS_ADMIN</code>）</li>
+<li>Seccomp与AppArmor配置</li>
+</ul>
+<h4 id="6-Docker生产环境实践"><a href="#6-Docker生产环境实践" class="headerlink" title="6. Docker生产环境实践"></a>6. <strong>Docker生产环境实践</strong></h4><ul>
+<li>日志管理（驱动：json-file, syslog, fluentd）</li>
+<li>监控方案（cAdvisor, Prometheus+Grafana）</li>
+<li>资源限制（CPU、内存、IO）</li>
+</ul>
+<h4 id="7-Kubernetes基础"><a href="#7-Kubernetes基础" class="headerlink" title="7. Kubernetes基础"></a>7. <strong>Kubernetes基础</strong></h4><ul>
+<li>虽然Kubernetes不是Docker，但通常面试会关联</li>
+<li>了解Pod、Service、Deployment等概念</li>
+<li>Docker与Kubernetes的关系（Kubernetes弃用Docker作为运行时？应了解Containerd）</li>
+</ul>
+<h4 id="8-CI-CD中的Docker"><a href="#8-CI-CD中的Docker" class="headerlink" title="8. CI&#x2F;CD中的Docker"></a>8. <strong>CI&#x2F;CD中的Docker</strong></h4><ul>
+<li>Docker在持续集成&#x2F;持续部署中的应用</li>
+<li>构建优化（利用缓存、构建参数）</li>
+</ul>
+<h3 id="三、实验部分"><a href="#三、实验部分" class="headerlink" title="三、实验部分"></a><strong>三、实验部分</strong></h3><ol>
+<li>从零构建一个自定义镜像（如Python应用）</li>
+<li>使用Docker Compose编排多容器应用（如Web+DB）</li>
+<li>调试容器网络问题（如无法连接到另一个容器）</li>
+<li>模拟资源限制（如限制容器内存导致OOM）</li>
+<li>多阶段构建实战（减少镜像体积）</li>
+</ol>
+<h3 id="四、常见面试题"><a href="#四、常见面试题" class="headerlink" title="四、常见面试题"></a><strong>四、常见面试题</strong></h3><ol>
+<li><strong>基础问题</strong>：<ul>
+<li>Docker镜像和容器有什么区别？</li>
+<li>如何进入正在运行的容器？<code>docker exec -it &lt;container&gt; /bin/bash</code></li>
+<li>如何清理所有停止的容器？<code>docker container prune</code></li>
+</ul>
+</li>
+<li><strong>高级问题</strong>：<ul>
+<li>详细描述从<code>docker run</code>到容器启动的过程。</li>
+<li>解释OverlayFS的工作机制。</li>
+<li>容器如何实现网络隔离的？</li>
+</ul>
+</li>
+<li><strong>原理问题</strong>：<ul>
+<li>Cgroup是如何限制容器资源的？</li>
+<li>Docker是如何利用Namespace隔离的？</li>
+<li>容器内进程的PID&#x3D;1是什么？它有什么特殊责任？</li>
+</ul>
+</li>
+<li><strong>故障排查</strong>：<ul>
+<li>容器启动失败如何查看日志？</li>
+<li>如何查看容器占用的磁盘空间？</li>
+<li>如何监控容器内进程？</li>
+</ul>
+</li>
+<li><strong>场景设计</strong>：<ul>
+<li>如何优化Docker镜像大小？</li>
+<li>如何持久化数据库容器的数据？</li>
+<li>如何保证容器时间与宿主机同步？</li>
+</ul>
+</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://mistfjord.github.io">kin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://mistfjord.github.io/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-docker-guide/">https://mistfjord.github.io/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-docker-guide/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></div><div class="post-share"><div class="social-share" data-image="/images/head.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-docker%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%B8%8E%E4%BD%BF%E7%94%A8/" title="docker基本概念与使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">Previous</div><div class="info-item-2">docker基本概念与使用</div></div><div class="info-2"><div class="info-item-1">一、基础部分（基本使用）1. Docker核心概念 镜像（Image）、容器（Container）、仓库（Repository）的概念 Docker与虚拟机的区别（轻量级、资源共享、启动速度等）  3. 基本命令操作 镜像管理： docker pull、docker images、docker rmi、docker build（Dockerfile） docker tag、docker push、docker save、docker load   容器管理： docker run（各种参数：-d, -p, -v, --name, --network, --restart等） docker ps、docker stop、docker start、docker restart、docker rm docker logs、docker exec、docker inspect   其他常用命令： docker info、docker version、docker system...</div></div></div></a><a class="pagination-related" href="/2025/06/14/kubernetes-client-go-client-go%20informer%E5%88%9B%E5%BB%BA%E5%8F%8A%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" title="client-go informer创建及启动流程分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">Next</div><div class="info-item-2">client-go informer创建及启动流程分析</div></div><div class="info-2"><div class="info-item-1">以下是基于 Kubernetes client-go 的 Informer 创建与启动流程的深度源码解析，分析版本为 v0.26.0： 一、完整创建启动时序图1234567891011121314151617181920212223242526272829sequenceDiagram    participant C as ClientSet    participant L as ListerWatcher    participant I as SharedIndexInformer    participant D as DeltaFIFO    participant R as Reflector    participant S as Indexer    C-&gt;&gt;L: 创建ListWatch对象    L-&gt;&gt;I: NewSharedIndexInformer()    I-&gt;&gt;D: 初始化DeltaFIFO(KeyFunc)    I-&gt;&gt;S: 创建ThreadSafeStore    I-&gt;&gt;I:...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-docker%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%B8%8E%E4%BD%BF%E7%94%A8/" title="docker基本概念与使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-06-25</div><div class="info-item-2">docker基本概念与使用</div></div><div class="info-2"><div class="info-item-1">一、基础部分（基本使用）1. Docker核心概念 镜像（Image）、容器（Container）、仓库（Repository）的概念 Docker与虚拟机的区别（轻量级、资源共享、启动速度等）  3. 基本命令操作 镜像管理： docker pull、docker images、docker rmi、docker build（Dockerfile） docker tag、docker push、docker save、docker load   容器管理： docker run（各种参数：-d, -p, -v, --name, --network, --restart等） docker ps、docker stop、docker start、docker restart、docker rm docker logs、docker exec、docker inspect   其他常用命令： docker info、docker version、docker system...</div></div></div></a><a class="pagination-related" href="/2025/06/16/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%EF%BC%9ACgroup/" title="docker容器技术原理：Cgroup"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-06-25</div><div class="info-item-2">docker容器技术原理：Cgroup</div></div><div class="info-2"><div class="info-item-1">1、cgroups简介cgroups（全称：control groups）是 Linux 内核的一个功能，它可以实现限制进程或者进程组的资源（如 CPU、内存、磁盘 IO 等）。  在 2006 年，Google 的工程师（ Rohit Seth 和 Paul Menage 为主要发起人） 发起了这个项目，起初项目名称并不是cgroups，而被称为进程容器（process containers）。在 2007 年cgroups代码计划合入Linux 内核，但是当时在 Linux 内核中，容器（container）这个词被广泛使用，并且拥有不同的含义。为了避免命名混乱和歧义，进程容器被重名为cgroups，并在 2008 年成功合入 Linux 2.6.24 版本中。cgroups目前已经成为 systemd、Docker、Linux Containers（LXC） 等技术的基础。  cgroups 功能及核心概念cgroups 主要提供了如下功能。  资源限制：...</div></div></div></a><a class="pagination-related" href="/2025/06/15/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%EF%BC%9ANameSpace/" title="docker容器技术原理：NameSpace"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-06-25</div><div class="info-item-2">docker容器技术原理：NameSpace</div></div><div class="info-2"><div class="info-item-1">Docker 是使用 Linux 的 Namespace 技术实现各种资源隔离的。 什么是 Namespace？下面是 Namespace 的维基百科定义：  Namespace 是 Linux 内核的一项功能，该功能对内核资源进行分区，以使一组进程看到一组资源，而另一组进程看到另一组资源。Namespace 的工作方式通过为一组资源和进程设置相同的 Namespace 而起作用，但是这些 Namespace 引用了不同的资源。资源可能存在于多个 Namespace 中。这些资源可以是进程 ID、主机名、用户 ID、文件名、与网络访问相关的名称和进程间通信。  简单来说，Namespace 是 Linux 内核的一个特性，该特性可以实现在同一主机系统中，对进程 ID、主机名、用户 ID、文件名、网络和进程间通信等资源的隔离。Docker 利用 Linux 内核的 Namespace 特性，实现了每个容器的资源相互隔离，从而保证容器内部只能访问到自己 Namespace 的资源。    Namespace 类型 隔离资源 内核版本 Docker...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/head.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">kin</div><div class="author-info-description">RUN ON</div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/mistFjord/"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E9%83%A8%E5%88%86%EF%BC%88%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%EF%BC%89"><span class="toc-text">一、基础部分（基本使用）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Docker%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-text">1. Docker核心概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-Docker%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE"><span class="toc-text">2. Docker安装与配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4%E6%93%8D%E4%BD%9C"><span class="toc-text">3. 基本命令操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-Dockerfile%E7%BC%96%E5%86%99"><span class="toc-text">4. Dockerfile编写</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-Docker-Compose"><span class="toc-text">5. Docker Compose</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-Docker%E7%BD%91%E7%BB%9C"><span class="toc-text">6. Docker网络</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-Docker%E5%AD%98%E5%82%A8"><span class="toc-text">7. Docker存储</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%AB%98%E7%BA%A7%E9%83%A8%E5%88%86%EF%BC%88%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%EF%BC%89"><span class="toc-text">二、高级部分（底层原理）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Docker%E6%9E%B6%E6%9E%84"><span class="toc-text">1. Docker架构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%AE%B9%E5%99%A8%E6%A0%B8%E5%BF%83%E6%8A%80%E6%9C%AF"><span class="toc-text">2. 容器核心技术</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="toc-text">3. 容器运行时</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E9%95%9C%E5%83%8F%E5%8E%9F%E7%90%86"><span class="toc-text">4. 镜像原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E5%AE%B9%E5%99%A8%E5%AE%89%E5%85%A8"><span class="toc-text">5. 容器安全</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-Docker%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E5%AE%9E%E8%B7%B5"><span class="toc-text">6. Docker生产环境实践</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-Kubernetes%E5%9F%BA%E7%A1%80"><span class="toc-text">7. Kubernetes基础</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-CI-CD%E4%B8%AD%E7%9A%84Docker"><span class="toc-text">8. CI&#x2F;CD中的Docker</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%AE%9E%E9%AA%8C%E9%83%A8%E5%88%86"><span class="toc-text">三、实验部分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%B8%B8%E8%A7%81%E9%9D%A2%E8%AF%95%E9%A2%98"><span class="toc-text">四、常见面试题</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E8%AE%B0-hexo-butterfly%E4%B8%BB%E9%A2%98%E8%87%AA%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE/" title="hexo-butterfly主题自定义配置">hexo-butterfly主题自定义配置</a><time datetime="2025-06-25T09:50:15.674Z" title="Created 2025-06-25 17:50:15">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/kubernetes-client-go-k8s%20informers%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/" title="k8s informers机制详解">k8s informers机制详解</a><time datetime="2025-06-25T09:43:08.000Z" title="Created 2025-06-25 17:43:08">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/docker-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8E%9F%E7%90%86-docker%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" title="docker架构设计">docker架构设计</a><time datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/kubernetes-client-go-client-go%20Indexer%E6%9C%BA%E5%88%B6%E4%B8%8E%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="client-go Indexer机制与源码解析">client-go Indexer机制与源码解析</a><time datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/06/25/kubernetes-client-go-client-go%20Reflector%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="client-go Reflector源码解析">client-go Reflector源码解析</a><time datetime="2025-06-25T09:43:07.000Z" title="Created 2025-06-25 17:43:07">2025-06-25</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/images/default.png);"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By kin</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
